@@ -1,16 +1,27 @@
+from cms.utils.urlutils import admin_reverse
 from cms.toolbar_base import CMSToolbar
 from cms.toolbar_pool import toolbar_pool
 from polls.models import Poll
 
 
 class PollToolbar(CMSToolbar):
+    supported_apps = ['polls']
 
     def populate(self):
-        self.toolbar.get_or_create_menu(
-            'polls_cms_integration-polls',  # a unique key for this menu
-            'Polls',                        # the text that should appear in the menu
-            )
 
+        if not self.is_current_app:
+            return
 
-# register the toolbar
-toolbar_pool.register(PollToolbar)
+        menu = self.toolbar.get_or_create_menu('polls_cms_integration-polls', 'Polls')
+
+        menu.add_sideframe_item(
+            name='Poll list',
+            url=admin_reverse('polls_poll_changelist'),
+        )
+
+        menu.add_modal_item(
+            name=('Add a new poll'),
+            url=admin_reverse('polls_poll_add'),
+        )
+
+toolbar_pool.register(PollToolbar)  # register the toolbar
